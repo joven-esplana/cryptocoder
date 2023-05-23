@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="CSS/style.css">
+    <title>Substitution Cipher</title>
+</head>
+<body>
+    <div id="container">
+        <div id="background">
+        </div>
+        <div id="content">
+            <h1>CryptoCoder</h1>
+            <input type="file" id="fileInput" accept=".txt">
+            <input type="number" id="keyInput" min="0" max="26">
+            <div>
+                <button class="button" onclick="substitutionCipher(document.getElementById('fileInput'), document.getElementById('keyInput').valueAsNumber, true)">Encode</button>
+                <button class="button" onclick="substitutionCipher(document.getElementById('fileInput'), document.getElementById('keyInput').valueAsNumber, false)">Decode</button>
+            </div>
+          </div>
+          
+    </div>
+    <script>
+        function substitutionCipher(fileInput, key, encode) {
+  // Create a file reader
+  const reader = new FileReader();
+  // Read the file as text
+  reader.readAsText(fileInput.files[0]);
+  // When the file is loaded
+  reader.onload = function() {
+    // Get the file content
+    const fileContent = reader.result;
+    // Define the substitution alphabet
+    const alphabet = 'abcdefghijklmnopqrstuvwxyz';
+    let substitutionAlphabet = 'abcdefghijklmnopqrstuvwxyz';
+    // Shift the characters in the substitution alphabet by the key number
+    substitutionAlphabet = substitutionAlphabet.slice(key) + substitutionAlphabet.slice(0, key);
+    // Create a function to substitute a character
+    function substitute(char) {
+      // Find the index of the character in the alphabet
+      const index = alphabet.indexOf(char.toLowerCase());
+      // If the character is not in the alphabet, return it unchanged
+      if (index === -1) return char;
+      // Get the substituted character from the substitution alphabet
+      const substitutedChar = substitutionAlphabet[index];
+      // If the original character was uppercase, make the substituted character uppercase
+      if (char === char.toUpperCase()) {
+        return substitutedChar.toUpperCase();
+      }
+      // Otherwise, return the substituted character as is
+      return substitutedChar;
+    }
+    
+    function decodeContent(content) {
+      return content.split('').map(substitute).join('');
+    }
+    
+    function encodeContent(content) {
+      return content.split('').map(char => {
+        const index = substitutionAlphabet.indexOf(char.toLowerCase());
+        if (index === -1) return char;
+        const originalChar = alphabet[index];
+        if (char === char.toUpperCase()) {
+          return originalChar.toUpperCase();
+        }
+        return originalChar;
+      }).join('');
+    }
+    
+    // Substitute all characters in the file content
+    const processedContent = encode ? decodeContent(fileContent) : encodeContent(fileContent);
+    
+    // Create a blob with the processed content
+    const blob = new Blob([processedContent], {type: 'text/plain'});
+    // Create a download link for the blob
+    const downloadLink = document.createElement('a');
+    downloadLink.href = URL.createObjectURL(blob);
+    downloadLink.download = encode ? 'encoded.txt' : 'decoded.txt';
+    downloadLink.click();
+  };
+}
+
+    </script>
+</body>
+</html>
+
